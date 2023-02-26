@@ -1,0 +1,80 @@
+create database student_management;
+use student_management;
+
+create table Classes (
+    class_id    int         primary key auto_increment,
+    class_name  varchar(5)  not null,
+    start_date  datetime    not null,
+    status      bit
+);
+
+create table Students(
+    student_id      int         primary key auto_increment,
+    student_name    varchar(20) not null,
+    address         varchar(20) not null,
+    phone           varchar(10) unique,
+    status          bit,
+    class_id        int         not null,
+    foreign key (class_id) references Classes(class_id)
+);
+
+create table Subjects(
+    subject_id      int         primary key auto_increment,
+    subject_name    varchar(20) not null,
+    credit          tinyint     not null    default 1 check (credit >= 1),
+    status          int         default 1
+);
+
+create table Marks (
+    mark_id         int         primary key auto_increment,
+    subject_id      int         not null,
+    student_id      int         not null,
+    mark            float       default 0 check (mark between 0 and 100),
+    exam_times      tinyint     default 1,
+    unique key (subject_id, student_id),
+    foreign key (student_id) references Students(student_id),
+    foreign key (subject_id) references Subjects(subject_id)
+);
+
+insert into Classes value (1, 'A1', '2008-12-20', 1);
+insert into Classes value (2, 'A2', '2008-12-22', 1);
+insert into Classes value (3, 'B3', current_date, 0);
+
+insert into Students (student_name, address, phone, status, class_id)
+value ('Hung', 'Ha Noi', '0912113113', 1, 1);
+insert into Students (student_name, address, status, class_id)
+value ('Hoa', 'Hai phong', 1, 1);
+insert into Students (student_name, address, phone, status, class_id)
+value ('Manh', 'HCM', '0123123123', 0, 2);
+
+insert into Subjects
+value (1, 'CF', 5, 1),
+       (2, 'C', 6, 1),
+       (3, 'HDJ', 5, 1),
+       (4, 'RDBMS', 10, 1);
+
+
+insert into Marks (subject_id, student_id, mark, exam_times)
+value (1, 1, 8, 1),
+       (1, 2, 10, 2),
+       (2, 1, 12, 1);
+
+select * from Students;
+
+select * from Students where status = true;
+
+select * from Subjects where credit < 10;
+
+select student_id, student_name, class_name
+from Students
+    join Classes
+        on Students.class_id = Classes.class_id
+where class_name = 'A1';
+
+select S.student_id, S.student_name, Sub.subject_name, M.mark
+from Students S
+    join Marks M
+        on S.student_id = M.student_id
+    join Subjects Sub
+        on M.subject_id = Sub.subject_id
+where Sub.subject_name = 'CF';
